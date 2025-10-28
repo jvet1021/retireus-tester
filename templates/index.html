@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RetireUS Red Flag Tester</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔍 RetireUS Red Flag Tester</h1>
+            <p class="subtitle">Test the checkpoint quiz red flag detection logic</p>
+            <nav>
+                <a href="/" class="nav-link active">Quiz Tester</a>
+                <a href="/scenarios" class="nav-link">Test Scenarios</a>
+            </nav>
+        </header>
+
+        <main>
+            <div class="quiz-container">
+                <h2>Fill Out Quiz Responses</h2>
+                <p class="instructions">Select answers as if you were a user taking the checkpoint quiz</p>
+
+                <form id="quizForm">
+                    <!-- Question 2 -->
+                    <div class="question-block">
+                        <label class="question-label">
+                            <span class="question-number">Q2</span>
+                            What concerns you about your ability to retire? (Select all that apply)
+                        </label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="q2_concerns" value="running_out_of_money">
+                                Running out of money
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="q2_concerns" value="not_being_on_pace">
+                                Not being on pace
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="q2_concerns" value="market_volatility">
+                                Market volatility and losing current savings
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="q2_concerns" value="paying_too_much_taxes">
+                                Paying too much in taxes
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Question 4 -->
+                    <div class="question-block">
+                        <label class="question-label">
+                            <span class="question-number">Q4</span>
+                            At what age do you want to retire?
+                        </label>
+                        <input type="number" name="q4_retirement_age" min="50" max="80" value="65" class="number-input">
+                        <span class="hint">Critical boundaries: &lt;59 (tax penalty), &gt;67 (RMD concerns)</span>
+                    </div>
+
+                    <!-- Question 8 -->
+                    <div class="question-block">
+                        <label class="question-label">
+                            <span class="question-number">Q8</span>
+                            Do you receive any of the following work benefits? (Select all that apply)
+                        </label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="q8_work_benefits" value="pension">
+                                Pension
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="q8_work_benefits" value="deferred_compensation">
+                                Deferred compensation
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="q8_work_benefits" value="stock_options">
+                                Stock options or grants
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Question 8b (Conditional) -->
+                    <div class="question-block conditional" id="q8b_block" style="display: none;">
+                        <label class="question-label">
+                            <span class="question-number">Q8b</span>
+                            What is your estimated pension income?
+                        </label>
+                        <input type="number" name="q8b_pension_income" min="0" max="200000" value="0" class="number-input">
+                        <span class="hint">Critical boundary: ≥$75,000 triggers tax_rf2</span>
+                    </div>
+
+                    <!-- Question 9 -->
+                    <div class="question-block">
+                        <label class="question-label">
+                            <span class="question-number">Q9</span>
+                            How would you describe your investment style?
+                        </label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="q9_investment_style" value="a">
+                                I feel like I'm at the casino everyday (HIGH RISK)
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="q9_investment_style" value="b" checked>
+                                I target an average/moderate return
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="q9_investment_style" value="c">
+                                I like investments that produce income (INFLATION RISK)
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="q9_investment_style" value="d">
+                                I prefer safe investments (INFLATION RISK)
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Question 10 -->
+                    <div class="question-block">
+                        <label class="question-label">
+                            <span class="question-number">Q10</span>
+                            How much are you saving each year for retirement?
+                        </label>
+                        <input type="number" name="q10_annual_savings" min="0" max="100000" value="15000" class="number-input">
+                        <span class="hint">Critical boundary: ≤$10,000 triggers basic_rf7</span>
+                    </div>
+
+                    <!-- Question 11 -->
+                    <div class="question-block">
+                        <label class="question-label">
+                            <span class="question-number">Q11</span>
+                            Do you have any of the following? (Select all that apply)
+                        </label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="q11_account_types" value="roth_accounts">
+                                Roth Accounts
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="q11_account_types" value="whole_life">
+                                Whole Life / Universal Life
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="q11_account_types" value="annuity_contracts">
+                                Fixed or Variable Annuity Contracts
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="q11_account_types" value="old_employer_plan">
+                                Old Employer Retirement Plans (401k, 403b, TSP)
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Question 12 -->
+                    <div class="question-block">
+                        <label class="question-label">
+                            <span class="question-number">Q12</span>
+                            Roughly how much do you have in total investment savings?
+                        </label>
+                        <input type="number" name="q12_total_savings" min="0" max="10000000" value="500000" class="number-input">
+                        <span class="hint">Critical boundary: &gt;$2,000,000 triggers wealth_rf1</span>
+                    </div>
+
+                    <!-- Timed Questions -->
+                    <div class="section-header">
+                        <h3>⚡ Rapid-Fire Questions (8 seconds each in real quiz)</h3>
+                    </div>
+
+                    <!-- Timed Q4 -->
+                    <div class="question-block">
+                        <label class="question-label">
+                            <span class="question-number">Timed Q4</span>
+                            How do you know if you are on pace to retire?
+                        </label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="timed_q4_on_pace" value="calculated_target">
+                                I have a calculated target
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="timed_q4_on_pace" value="not_sure" checked>
+                                I'm not sure
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Timed Q5 -->
+                    <div class="question-block">
+                        <label class="question-label">
+                            <span class="question-number">Timed Q5</span>
+                            How do you know if your investments are appropriate?
+                        </label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="timed_q5_investments_appropriate" value="risk_return_target">
+                                I have a risk/return target
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="timed_q5_investments_appropriate" value="should_reevaluate" checked>
+                                I should probably re-evaluate them
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Timed Q6 -->
+                    <div class="question-block">
+                        <label class="question-label">
+                            <span class="question-number">Timed Q6</span>
+                            Have you done any RMD (Required Minimum Distribution) planning?
+                        </label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="timed_q6_rmd_planning" value="yes_long_term_plan">
+                                Yes, I have a long term tax plan
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="timed_q6_rmd_planning" value="no_unclear" checked>
+                                No, this is unclear
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Timed Q7 -->
+                    <div class="question-block">
+                        <label class="question-label">
+                            <span class="question-number">Timed Q7</span>
+                            If the stock market crashed in the next year, how would you be impacted?
+                        </label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="timed_q7_market_crash" value="wouldnt_bother_me">
+                                It wouldn't bother me
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="timed_q7_market_crash" value="concerned_stressed" checked>
+                                I'd be concerned / stressed
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Timed Q8 -->
+                    <div class="question-block">
+                        <label class="question-label">
+                            <span class="question-number">Timed Q8</span>
+                            How do you feel about your overall financial plan?
+                        </label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="timed_q8_financial_plan" value="very_clear">
+                                It's very clear
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="timed_q8_financial_plan" value="dont_have_one" checked>
+                                I don't think I really have one
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary">🔍 Analyze Red Flags</button>
+                </form>
+            </div>
+
+            <!-- Results Container -->
+            <div class="results-container" id="resultsContainer" style="display: none;">
+                <h2>🚩 Analysis Results</h2>
+                
+                <div class="summary-cards">
+                    <div class="summary-card">
+                        <div class="summary-number" id="totalFlags">0</div>
+                        <div class="summary-label">Total Red Flags</div>
+                    </div>
+                    <div class="summary-card basic">
+                        <div class="summary-number" id="basicFlags">0</div>
+                        <div class="summary-label">Basic Planning</div>
+                    </div>
+                    <div class="summary-card tax">
+                        <div class="summary-number" id="taxFlags">0</div>
+                        <div class="summary-label">Tax Mastery</div>
+                    </div>
+                    <div class="summary-card wealth">
+                        <div class="summary-number" id="wealthFlags">0</div>
+                        <div class="summary-label">Wealth Mastery</div>
+                    </div>
+                </div>
+
+                <div class="recommendations" id="recommendations"></div>
+
+                <div class="red-flags-list" id="redFlagsList"></div>
+            </div>
+        </main>
+
+        <footer>
+            <p>RetireUS Checkpoint Quiz Red Flag Tester • For internal testing only</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Scenarios - RetireUS Red Flag Tester</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧪 Test Scenarios</h1>
+            <p class="subtitle">Pre-built scenarios for testing dev/production</p>
+            <nav>
+                <a href="/" class="nav-link">Quiz Tester</a>
+                <a href="/scenarios" class="nav-link active">Test Scenarios</a>
+            </nav>
+        </header>
+
+        <main>
+            <div class="scenarios-intro">
+                <h2>How to Use Test Scenarios</h2>
+                <ol>
+                    <li>Select a scenario below to see the quiz responses it will submit</li>
+                    <li>Review the <strong>Expected Results</strong> (what should happen)</li>
+                    <li>Click "Run Scenario" to test the logic</li>
+                    <li>Compare Actual vs Expected results</li>
+                    <li>Mark as PASS ✅ or FAIL ❌ for your testing</li>
+                </ol>
+            </div>
+
+            <div class="scenarios-grid" id="scenariosGrid">
+                <!-- Scenarios will be loaded here by JavaScript -->
+            </div>
+
+            <!-- Scenario Detail Modal -->
+            <div class="modal" id="scenarioModal" style="display: none;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 id="modalTitle"></h2>
+                        <button class="modal-close" onclick="closeModal()">&times;</button>
+                    </div>
+                    
+                    <div class="modal-body">
+                        <div class="scenario-section">
+                            <h3>📋 Scenario Details</h3>
+                            <p id="modalDescription"></p>
+                        </div>
+
+                        <div class="scenario-section">
+                            <h3>📊 Quiz Responses</h3>
+                            <pre id="modalResponses" class="code-block"></pre>
+                        </div>
+
+                        <div class="scenario-section">
+                            <h3>✅ Expected Results</h3>
+                            <div class="expected-results">
+                                <div class="expected-item">
+                                    <strong>Red Flags:</strong>
+                                    <span id="expectedFlags" class="badge"></span>
+                                </div>
+                                <div class="expected-item">
+                                    <strong>Recommended Tiers:</strong>
+                                    <div id="expectedTiers"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="btn-primary btn-large" onclick="runScenario()">
+                            🚀 Run Scenario
+                        </button>
+
+                        <div id="scenarioResults" style="display: none;">
+                            <div class="scenario-section">
+                                <h3>🔍 Actual Results</h3>
+                                
+                                <div class="comparison-grid">
+                                    <div class="comparison-item">
+                                        <div class="comparison-label">Expected Flags</div>
+                                        <div class="comparison-value" id="comparisonExpectedFlags"></div>
+                                    </div>
+                                    <div class="comparison-item">
+                                        <div class="comparison-label">Actual Flags</div>
+                                        <div class="comparison-value" id="comparisonActualFlags"></div>
+                                    </div>
+                                </div>
+
+                                <div class="test-status" id="testStatus"></div>
+
+                                <div class="summary-cards">
+                                    <div class="summary-card">
+                                        <div class="summary-number" id="modalTotalFlags">0</div>
+                                        <div class="summary-label">Total Red Flags</div>
+                                    </div>
+                                    <div class="summary-card basic">
+                                        <div class="summary-number" id="modalBasicFlags">0</div>
+                                        <div class="summary-label">Basic Planning</div>
+                                    </div>
+                                    <div class="summary-card tax">
+                                        <div class="summary-number" id="modalTaxFlags">0</div>
+                                        <div class="summary-label">Tax Mastery</div>
+                                    </div>
+                                    <div class="summary-card wealth">
+                                        <div class="summary-number" id="modalWealthFlags">0</div>
+                                        <div class="summary-label">Wealth Mastery</div>
+                                    </div>
+                                </div>
+
+                                <div id="modalRecommendations"></div>
+                                <div id="modalRedFlags"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>RetireUS Checkpoint Quiz Red Flag Tester • For internal testing only</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/scenarios.js') }}"></script>
+</body>
+</html>
