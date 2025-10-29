@@ -7,6 +7,7 @@ A web interface for testing the red flag detection logic.
 from flask import Flask, render_template, request, jsonify
 import json
 from red_flag_detector import RedFlagDetector, ServiceTier
+from scoring import calculate_pacing_score, calculate_tax_planning_score, calculate_risk_of_failure_score
 
 app = Flask(__name__)
 
@@ -25,7 +26,7 @@ def scenarios():
 
 @app.route('/api/analyze', methods=['POST'])
 def analyze():
-    """Analyze quiz responses and return red flags"""
+    """Analyze quiz responses and return red flags + scores"""
     try:
         responses = request.json
         
@@ -35,6 +36,31 @@ def analyze():
         # Detect red flags
         red_flags = detector.detect(formatted_responses)
         recommendations = detector.get_recommendations(red_flags)
+        
+        # Calculate scores (NEW!)
+        pacing = calculate_pacing_score(formatted_responses)
+        tax_planning = calculate_tax_planning_score(formatted_responses)
+        risk_of_failure = calculate_risk_of_failure_score(
+            formatted_responses, 
+            red_flags, 
+            pacing['score']
+        )
+        
+        # Get the recommended plan (highest tier only)
+        recommended_plan = None
+        if recommendations:
+            highest_tier = list(recommendations.keys())[0]  # Only one tier in dict now
+            flag_count = len(recommendations[highest_tier])
+            recommended_plan = {
+                'tier': highest_tier.value,
+                'flag_count': flag_count
+            }
+        else:
+            # Failsafe
+            recommended_plan = {
+                'tier': 'Basic Planning',
+                'flag_count': 0
+            }
         
         # Format response
         result = {
@@ -47,16 +73,11 @@ def analyze():
                 }
                 for rf in red_flags
             ],
-            'recommendations': {
-                tier.value: [
-                    {
-                        'id': rf.id,
-                        'name': rf.name,
-                        'description': rf.description
-                    }
-                    for rf in flags
-                ]
-                for tier, flags in recommendations.items()
+            'recommended_plan': recommended_plan,
+            'scores': {
+                'pacing': pacing,
+                'tax_planning': tax_planning,
+                'risk_of_failure': risk_of_failure
             },
             'summary': {
                 'total_flags': len(red_flags),
@@ -256,8 +277,9 @@ def format_responses(raw_responses):
         if field in raw_responses:
             formatted[field] = raw_responses[field] if isinstance(raw_responses[field], list) else []
     
-    # Handle numeric fields
-    numeric_fields = ['q4_retirement_age', 'q8b_pension_income', 'q10_annual_savings', 'q12_total_savings']
+    # Handle numeric fields (ADDED q7_annual_retirement_cost)
+    numeric_fields = ['q4_retirement_age', 'q7_annual_retirement_cost', 'q8b_pension_income', 
+                      'q10_annual_savings', 'q12_total_savings']
     for field in numeric_fields:
         if field in raw_responses and raw_responses[field]:
             try:

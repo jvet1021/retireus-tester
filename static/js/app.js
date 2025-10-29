@@ -78,30 +78,23 @@ function displayResults(result) {
     document.getElementById('taxFlags').textContent = result.summary.tax_count;
     document.getElementById('wealthFlags').textContent = result.summary.wealth_count;
 
-    // Display recommendations
+    // Display scores (NEW!)
+    displayScores(result.scores);
+
+    // Display recommendation (UPDATED - only highest tier)
     const recommendationsDiv = document.getElementById('recommendations');
     recommendationsDiv.innerHTML = '';
     
-    if (Object.keys(result.recommendations).length > 0) {
-        recommendationsDiv.innerHTML = '<h3 style="margin-bottom: 15px;">💡 Recommended Services</h3>';
+    if (result.recommended_plan) {
+        recommendationsDiv.innerHTML = '<h3 style="margin-bottom: 15px;">💡 Recommended Plan</h3>';
         
-        for (const [tier, flags] of Object.entries(result.recommendations)) {
-            const tierClass = tier.toLowerCase().replace(' ', '-');
-            const tierDiv = document.createElement('div');
-            tierDiv.className = `recommendation-tier ${getTierClass(tier)}`;
-            tierDiv.innerHTML = `
-                <h3>✓ ${tier}</h3>
-                <p class="recommendation-count">Triggered by ${flags.length} red flag(s)</p>
-            `;
-            recommendationsDiv.appendChild(tierDiv);
-        }
-    } else {
-        recommendationsDiv.innerHTML = `
-            <div class="recommendation-tier" style="border-left-color: #10B981;">
-                <h3>✅ No Recommendations Triggered</h3>
-                <p>User appears to be on track for retirement.</p>
-            </div>
+        const tierDiv = document.createElement('div');
+        tierDiv.className = `recommendation-tier ${getTierClass(result.recommended_plan.tier)}`;
+        tierDiv.innerHTML = `
+            <h3>✓ ${result.recommended_plan.tier}</h3>
+            <p class="recommendation-count">Based on ${result.recommended_plan.flag_count} red flag(s) detected</p>
         `;
+        recommendationsDiv.appendChild(tierDiv);
     }
 
     // Display red flags by tier
@@ -160,6 +153,56 @@ function displayResults(result) {
     resultsContainer.scrollIntoView({ behavior: 'smooth' });
 }
 
+function displayScores(scores) {
+    // Create scores section if it doesn't exist
+    let scoresSection = document.getElementById('scoresSection');
+    if (!scoresSection) {
+        scoresSection = document.createElement('div');
+        scoresSection.id = 'scoresSection';
+        scoresSection.innerHTML = '<h3 style="margin: 30px 0 20px 0;">📊 Your Scores</h3>';
+        
+        // Insert after summary cards
+        const summaryCards = document.querySelector('.summary-cards');
+        summaryCards.parentNode.insertBefore(scoresSection, summaryCards.nextSibling);
+    }
+    
+    scoresSection.innerHTML = `
+        <h3 style="margin: 30px 0 20px 0;">📊 Your Scores</h3>
+        <div class="score-cards">
+            <div class="score-card">
+                <h4>Pacing Score</h4>
+                <div class="score-value ${getScoreClass(scores.pacing.status)}">
+                    ${scores.pacing.result}
+                </div>
+                <p class="score-description">Based on your savings trajectory</p>
+            </div>
+            <div class="score-card">
+                <h4>Tax Planning Score</h4>
+                <div class="score-value ${getScoreClass(scores.tax_planning.status)}">
+                    ${scores.tax_planning.result}
+                </div>
+                <p class="score-description">Projected tax burden in retirement</p>
+            </div>
+            <div class="score-card">
+                <h4>Risk of Failure Score</h4>
+                <div class="score-value ${getScoreClass(scores.risk_of_failure.status)}">
+                    ${scores.risk_of_failure.result}
+                </div>
+                <p class="score-description">Overall retirement readiness</p>
+            </div>
+        </div>
+    `;
+}
+
+function getScoreClass(status) {
+    const statusMap = {
+        'on_track': 'on-track',
+        'at_risk': 'at-risk',
+        'off_track': 'off-track'
+    };
+    return statusMap[status] || 'at-risk';
+}
+
 function getTierClass(tierName) {
     const tierMap = {
         'Basic Planning': 'basic',
@@ -168,3 +211,4 @@ function getTierClass(tierName) {
     };
     return tierMap[tierName] || 'basic';
 }
+

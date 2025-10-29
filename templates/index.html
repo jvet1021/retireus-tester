@@ -58,7 +58,25 @@
                         <input type="number" name="q4_retirement_age" min="50" max="80" value="65" class="number-input">
                         <span class="hint">Critical boundaries: &lt;59 (tax penalty), &gt;67 (RMD concerns)</span>
                     </div>
-
+                  
+                    <!-- Question 7 -->  
+                    <div class="question-block">
+                        <label class="question-label">
+                            <span class="question-number">Q7</span>
+                            How much do you think retirement will cost each year?
+                        </label>
+                        <div style="padding: 20px 0;">
+                            <input type="range" name="q7_annual_retirement_cost" min="50000" max="250000" step="25000" value="100000" 
+                                class="slider" id="q7Slider" oninput="updateQ7Display(this.value)">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.875rem; color: #6B7280; margin-top: 8px;">
+                                <span>$50,000</span>
+                                <span id="q7Display" style="font-weight: 600; color: #4F46E5;">$100,000</span>
+                                <span>$250,000</span>
+                            </div>
+                        </div>
+                        <span class="hint">Estimate in terms of current costs</span>
+                    </div>
+                    
                     <!-- Question 8 -->
                     <div class="question-block">
                         <label class="question-label">
@@ -259,6 +277,13 @@
                     </div>
 
                     <button type="submit" class="btn-primary">🔍 Analyze Red Flags</button>
+                    
+                    <script>
+                    function updateQ7Display(value) {
+                        document.getElementById('q7Display').textContent = '$' + parseInt(value).toLocaleString();
+                    }
+                    </script>                
+                
                 </form>
             </div>
 

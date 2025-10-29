@@ -356,36 +356,36 @@ class RedFlagDetector:
     # ==================== RECOMMENDATION ENGINE ====================
     
     def get_recommendations(self, red_flags: List[RedFlag]) -> Dict[ServiceTier, List[RedFlag]]:
-        """
-        Determine which service tier to recommend based on red flags.
-        UPDATED: Returns only the HIGHEST tier the user qualifies for.
-        
-        Rules:
-        - Basic Planning: ANY basic red flag (1+)
-        - Tax Mastery: TWO OR MORE tax red flags (2+)
-        - Wealth Mastery: ANY wealth red flag (1+)
-        
-        Priority: Wealth Mastery > Tax Mastery > Basic Planning
-        """
-        basic_flags = [rf for rf in red_flags if rf.tier == ServiceTier.BASIC_PLANNING]
-        tax_flags = [rf for rf in red_flags if rf.tier == ServiceTier.TAX_MASTERY]
-        wealth_flags = [rf for rf in red_flags if rf.tier == ServiceTier.WEALTH_MASTERY]
-        
-        # Check qualifications
-        qualifies_basic = len(basic_flags) > 0
-        qualifies_tax = len(tax_flags) >= 2
-        qualifies_wealth = len(wealth_flags) >= 1
-        
-        # Return ONLY the highest tier (Wealth > Tax > Basic)
-        if qualifies_wealth:
-            return {ServiceTier.WEALTH_MASTERY: wealth_flags}
-        elif qualifies_tax:
-            return {ServiceTier.TAX_MASTERY: tax_flags}
-        elif qualifies_basic:
-            return {ServiceTier.BASIC_PLANNING: basic_flags}
-        else:
-            # Failsafe: Always offer Basic Planning
-            return {ServiceTier.BASIC_PLANNING: basic_flags}
+    """
+    Determine which service tier to recommend based on red flags.
+    UPDATED: Returns only the HIGHEST tier the user qualifies for.
+    
+    Rules:
+    - Basic Planning: ANY basic red flag (1+)
+    - Tax Mastery: TWO OR MORE tax red flags (2+)
+    - Wealth Mastery: ANY wealth red flag (1+)
+    
+    Priority: Wealth Mastery > Tax Mastery > Basic Planning
+    """
+    basic_flags = [rf for rf in red_flags if rf.tier == ServiceTier.BASIC_PLANNING]
+    tax_flags = [rf for rf in red_flags if rf.tier == ServiceTier.TAX_MASTERY]
+    wealth_flags = [rf for rf in red_flags if rf.tier == ServiceTier.WEALTH_MASTERY]
+    
+    # Check qualifications
+    qualifies_basic = len(basic_flags) > 0
+    qualifies_tax = len(tax_flags) >= 2
+    qualifies_wealth = len(wealth_flags) >= 1
+    
+    # Return ONLY the highest tier (Wealth > Tax > Basic)
+    if qualifies_wealth:
+        return {ServiceTier.WEALTH_MASTERY: wealth_flags}
+    elif qualifies_tax:
+        return {ServiceTier.TAX_MASTERY: tax_flags}
+    elif qualifies_basic:
+        return {ServiceTier.BASIC_PLANNING: basic_flags}
+    else:
+        # Failsafe: Always offer Basic Planning
+        return {ServiceTier.BASIC_PLANNING: basic_flags}
     
     def print_results(self, red_flags: List[RedFlag], recommendations: Dict[ServiceTier, List[RedFlag]]):
         """Pretty print the detection results"""
